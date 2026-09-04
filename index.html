@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>ƙőra Browser</title>
+<style>
+:root {
+--accent-pink: #d81b60;
+--accent-pink-hover: #c2185b;
+--bg-theme: linear-gradient(180deg, #81d4fa 0%, #e0f7fa 40%, #ffffff 100%);
+--card-bg: rgba(255, 255, 255, 0.85);
+--card-border: rgba(255, 255, 255, 0.6);
+--text-main: #2c3e50;
+--text-sub: #7f8c8d;
+--bar-bg: rgba(235, 235, 240, 0.95);
+--shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+* {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+-webkit-tap-highlight-color: transparent;
+user-select: none;
+}
+
+html, body {
+width: 100%;
+height: 100%;
+overflow: hidden;
+background-color: #ffffff;
+}
+
+.app-container {
+width: 100vw;
+height: 100vh;
+background: var(--bg-theme);
+position: relative;
+overflow: hidden;
+display: flex;
+flex-direction: column;
+transition: background 0.3s ease;
+}
+
+/* SPLASH SCREEN */
+.splash-screen {
+position: absolute;
+inset: 0;
+background: linear-gradient(180deg, #4fc3f7 0%, #b2ebf2 50%, #ffffff 100%);
+z-index: 100;
+display: flex;
+flex-direction: column;
+justify-content: flex-end;
+align-items: center;
+padding-bottom: 90px;
+transition: opacity 0.6s ease, visibility 0.6s;
+}
+
+.splash-screen.hidden {
+opacity: 0;
+visibility: hidden;
+}
+
+.splash-title {
+font-size: 52px;
+font-weight: 800;
+color: #263238;
+letter-spacing: -1px;
+}
+
+/* MAIN SCREEN */
+.main-screen {
+flex: 1;
+display: flex;
+flex-direction: column;
+padding: 20px;
+position: relative;
+opacity: 0;
+transition: opacity 0.5s ease 0.3s;
+max-width: 600px;
+margin: 0 auto;
+width: 100%;
+overflow-y: auto;
+}
+
+.main-screen.visible {
+opacity: 1;
+}
+
+.top-bar {
+display: flex;
+justify-content: flex-end;
+align-items: center;
+width: 100%;
+height: 40px;
+}
+
+.icon-btn {
+width: 42px;
+height: 42px;
+border-radius: 50%;
+background: rgba(255, 255, 255, 0.7);
+backdrop-filter: blur(10px);
+display: flex;
+align-items: center;
+justify-content: center;
+border: none;
+cursor: pointer;
+box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+transition: transform 0.2s, background 0.2s;
+}
+
+.icon-btn:active {
+transform: scale(0.92);
+}
+
+.brand-header {
+text-align: center;
+margin-top: 10px;
+margin-bottom: 10px;
+}
+
+.brand-header h1 {
+font-size: 42px;
+font-weight: 800;
+color: #2c3e50;
+line-height: 1;
+}
+
+.brand-header p {
+font-size: 14px;
+font-weight: 700;
+color: #34495e;
+margin-top: 4px;
+}
+
+/* Сетка закладок */
+.bookmarks-grid {
+display: flex;
+flex-wrap: wrap;
+gap: 16px;
+padding: 10px 5px;
+align-content: flex-start;
+}
+
+.add-btn-card {
+width: 64px;
+height: 64px;
+border-radius: 20px;
+background: rgba(255, 255, 255, 0.85);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 28px;
+color: #7f8c8d;
+border: none;
+cursor: pointer;
+box-shadow: var(--shadow-soft);
+backdrop-filter: blur(5px);
+transition: transform 0.2s;
+}
+
+.add-btn-card:active {
+transform: scale(0.92);
+}
+
+.bookmark-item {
+display: flex;
+flex-direction: column;
+align-items: center;
+position: relative;
+width: 64px;
+}
+
+.bookmark-icon {
+width: 64px;
+height: 64px;
+border-radius: 20px;
+background: #ffffff;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 22px;
+font-weight: bold;
+color: var(--accent-pink);
+box-shadow: var(--shadow-soft);
+cursor: pointer;
+text-decoration: none;
+overflow: hidden;
+}
+
+.bookmark-icon img {
+width: 36px;
+height: 36px;
+object-fit: contain;
+border-radius: 6px;
+}
+
+.bookmark-title {
+font-size: 12px;
+margin-top: 6px;
+color: #333;
+text-align: center;
+width: 100%;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+}
+
+.delete-bm {
+position: absolute;
+top: -4px;
+right: -4px;
+background: #ff5252;
+color: white;
+border-radius: 50%;
+width: 20px;
+height: 20px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 12px;
+border: 2px solid #fff;
+cursor: pointer;
+}
+
+/* БЛОК НОВОСТЕЙ */
+.news-section {
+width: 100%;
+margin: 12px 0;
+background: rgba(255, 255, 255, 0.75);
+backdrop-filter: blur(12px);
+border-radius: 20px;
+padding: 14px;
+box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+border: 1px solid rgba(255, 255, 255, 0.8);
+transition: all 0.3s ease;
+}
+
+.news-section.top-pos { order: -2; }
+.news-section.center-pos { order: 0; }
+.news-section.bottom-pos { order: 2; }
+
+.news-title {
+font-size: 14px;
+font-weight: 700;
+color: #2c3e50;
+margin-bottom: 10px;
+display: flex;
+align-items: center;
+gap: 6px;
+}
+
+.news-list {
+max-height: 170px;
+overflow-y: auto;
+display: flex;
+flex-direction: column;
+gap: 8px;
+font-size: 13px;
+}
+
+.news-item {
+background: rgba(255, 255, 255, 0.9);
+padding: 10px 12px;
+border-radius: 12px;
+color: #2c3e50;
+text-decoration: none;
+font-weight: 500;
+transition: background 0.2s, transform 0.1s;
+box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+display: block;
+line-height: 1.3;
+}
+
+.news-item:active {
+transform: scale(0.98);
+background: #ffffff;
+}
+
+/* ПАНЕЛЬ ПОИСКА И НАВИГАЦИИ */
+.bottom-container {
+margin-top: auto;
+width: 100%;
+display: flex;
+flex-direction: column;
+gap: 12px;
+padding-bottom: 10px;
+transition: all 0.3s ease;
+position: relative;
+}
+
+.bottom-container.top-position { order: -1; margin-top: 10px; margin-bottom: auto; }
+.bottom-container.center-position { order: 1; margin-top: auto; margin-bottom: auto; }
+.bottom-container.bottom-position { order: 3; }
+
+.search-bar-wrapper {
+background: var(--bar-bg);
+border-radius: 28px;
+padding: 6px 8px 6px 14px;
+display: flex;
+align-items: center;
+backdrop-filter: blur(10px);
+box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+position: relative;
+}
+
+.search-left {
+display: flex;
+align-items: center;
+gap: 8px;
+flex: 1;
+}
+
+.engine-icon {
+width: 18px;
+height: 18px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.search-input-field {
+border: none;
+background: transparent;
+width: 100%;
+font-size: 15px;
+color: #333;
+outline: none;
+}
+
+/* ПОДСКАЗКИ В ПОИСКЕ */
+.suggestions-box {
+position: absolute;
+bottom: 100%;
+left: 0;
+right: 0;
+background: rgba(255, 255, 255, 0.95);
+backdrop-filter: blur(15px);
+border-radius: 18px;
+margin-bottom: 8px;
+box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+overflow: hidden;
+display: none;
+z-index: 30;
+flex-direction: column;
+}
+
+.bottom-container.top-position .suggestions-box {
+bottom: auto;
+top: 100%;
+margin-top: 8px;
+margin-bottom: 0;
+}
+
+.suggestion-item {
+padding: 10px 16px;
+font-size: 14px;
+color: #333;
+cursor: pointer;
+border-bottom: 1px solid rgba(0,0,0,0.04);
+display: flex;
+align-items: center;
+gap: 10px;
+}
+
+.suggestion-item:last-child { border-bottom: none; }
+.suggestion-item:hover, .suggestion-item:active { background: rgba(0,0,0,0.05); }
+
+.ai-btn {
+background: var(--accent-pink);
+color: white;
+border: none;
+padding: 6px 12px;
+border-radius: 14px;
+font-weight: 700;
+font-size: 13px;
+cursor: pointer;
+transition: background 0.2s;
+}
+
+.nav-bar {
+display: flex;
+justify-content: space-around;
+align-items: center;
+padding: 0 10px;
+}
+
+.nav-icon {
+background: none;
+border: none;
+cursor: pointer;
+color: #555;
+padding: 8px 16px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+/* ВСПЛЫВАЮЩЕЕ МЕНЮ */
+.add-popup {
+position: absolute;
+top: 180px;
+left: 20px;
+width: 220px;
+background: rgba(245, 248, 250, 0.95);
+backdrop-filter: blur(15px);
+border-radius: 20px;
+padding: 14px;
+box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+z-index: 20;
+display: none;
+}
+
+.popup-option {
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 10px;
+font-size: 15px;
+font-weight: 600;
+color: #1a1a1a;
+cursor: pointer;
+border-radius: 10px;
+}
+.popup-option:active { background: rgba(0,0,0,0.05); }
+
+/* ИИ-ЧАТ */
+.ai-screen {
+position: absolute;
+inset: 0;
+background: #ffffff;
+z-index: 50;
+display: flex;
+flex-direction: column;
+transform: translateY(100%);
+transition: transform 0.35s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+.ai-screen.active { transform: translateY(0); }
+
+.ai-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 16px 20px;
+border-bottom: 1px solid #f0f0f0;
+}
+
+.ai-title h3 { font-size: 20px; font-weight: 800; color: #111; text-align: center; }
+.ai-title p { font-size: 11px; color: #888; text-align: center; }
+
+/* НАСТРОЙКИ И ИСТОРИЯ */
+.settings-screen, .history-screen {
+position: absolute;
+inset: 0;
+background: rgba(0,0,0,0.4);
+z-index: 60;
+display: flex;
+flex-direction: column;
+justify-content: flex-end;
+opacity: 0;
+pointer-events: none;
+transition: opacity 0.3s ease;
+}
+
+.settings-screen.active, .history-screen.active { opacity: 1; pointer-events: auto; }
+
+.settings-card, .history-card {
+background: #f8f9fa;
+border-top-left-radius: 32px;
+border-top-right-radius: 32px;
+height: 85%;
+display: flex;
+flex-direction: column;
+transform: translateY(100%);
+transition: transform 0.35s cubic-bezier(0.1, 0.9, 0.2, 1);
+overflow: hidden;
+max-width: 600px;
+margin: 0 auto;
+width: 100%;
+}
+
+.settings-screen.active .settings-card,
+.history-screen.active .history-card { transform: translateY(0); }
+
+.settings-header, .history-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 18px 20px;
+background: #fff;
+border-bottom: 1px solid #eee;
+}
+
+.settings-body, .history-body { flex: 1; overflow-y: auto; padding: 20px; }
+
+.settings-section-title { font-size: 12px; color: #888; margin: 12px 0 6px 8px; text-transform: uppercase; }
+
+.themes-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 6px 0; }
+.theme-card { width: 50px; height: 50px; border-radius: 14px; flex-shrink: 0; cursor: pointer; border: 2px solid transparent; }
+.theme-card.selected { border-color: var(--accent-pink); }
+
+.position-selector { display: flex; justify-content: center; gap: 12px; margin: 10px 0; }
+.pos-option { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+.phone-preview { width: 50px; height: 80px; border: 2px solid #ccc; border-radius: 12px; background: #fff; position: relative; }
+.phone-preview.selected { border-color: var(--accent-pink); }
+.preview-bar { height: 5px; background: #ddd; border-radius: 4px; position: absolute; left: 4px; right: 4px; }
+.preview-bar.bottom { bottom: 6px; }
+.preview-bar.center { top: 36px; }
+.preview-bar.top { top: 6px; }
+
+.settings-group { background: #fff; border-radius: 16px; overflow: hidden; }
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+.settings-row:last-child { border-bottom: none; }
+.settings-select { border: none; background: transparent; font-size: 14px; color: #333; outline: none; font-weight: 600; }
+
+.toggle-switch { width: 44px; height: 26px; background: #e4e4e6; border-radius: 13px; position: relative; cursor: pointer; transition: background 0.25s; }
+.toggle-switch.active { background: var(--accent-pink); }
+.toggle-handle { width: 22px; height: 22px; background: #fff; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: transform 0.25s; }
+.toggle-switch.active .toggle-handle { transform: translateX(18px); }
+
+/* ИСТОРИЯ СПИСОК */
+.history-item { background: #fff; padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 4px; cursor: pointer; }
+.history-item-title { font-weight: 600; font-size: 14px; color: #2c3e50; }
+.history-item-url { font-size: 12px; color: #7f8c8d; }
+
+/* МОДАЛЬНОЕ ОКНО */
+.modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); z-index: 80; display: none; align-items: center; justify-content: center; }
+.modal-card { background: white; width: 85%; max-width: 380px; border-radius: 20px; padding: 20px; }
+.modal-card h3 { margin-bottom: 12px; }
+.modal-card input { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 8px; outline: none; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+.modal-btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; }
+.modal-btn.primary { background: var(--accent-pink); color: white; }
+</style>
+</head>
+<body>
+
+<div class="app-container" id="appContainer">
+<!-- SPLASH SCREEN -->
+<div class="splash-screen" id="splash">
+<div class="splash-title">ƙőra</div>
+</div>
+
+<!-- MAIN SCREEN -->
+<div class="main-screen" id="mainScreen">
+<div class="top-bar">
+<button class="icon-btn" id="openSettings">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
+</button>
+</div>
+
+<div class="brand-header">
+<h1>ƙőra</h1>
+<p>Free browser</p>
+</div>
+
+<!-- Сетка закладок -->
+<div class="bookmarks-grid" id="bookmarksGrid"></div>
+
+<!-- БЛОК СВЕЖИХ НОВОСТЕЙ -->
+<div class="news-section" id="newsSection">
+<div class="news-title">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1m2 13a2 2 0 0 1-2-2V7m2 13a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2m-4-3H9M9 12h6m-6 4h4"/></svg>
+Свежие новости
+</div>
+<div id="newsContainer" class="news-list">Загрузка новостей...</div>
+</div>
+
+<!-- Всплывающее меню "+" -->
+<div class="add-popup" id="addPopup">
+<div class="popup-option" id="popAddBookmark">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+Добавить закладку
+</div>
+</div>
+
+<!-- Поиск и Навигация -->
+<div class="bottom-container" id="bottomContainer">
+<div class="suggestions-box" id="suggestionsBox"></div>
+
+<div class="search-bar-wrapper">
+<div class="search-left">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="11" r="1.5" fill="#666"/></svg>
+<div style="width:1px; height:16px; background:#ccc;"></div>
+<div class="engine-icon" id="engineIcon"></div>
+<input type="text" class="search-input-field" id="searchInput" placeholder="Искать в Google" autocomplete="off">
+</div>
+<button class="ai-btn" id="openAiBtn">AI</button>
+</div>
+
+<!-- ПАНЕЛЬ НАВИГАЦИИ -->
+<div class="nav-bar">
+<button class="nav-icon" id="btnBack" title="Назад"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+<button class="nav-icon" id="openThemesMenu" title="Темы"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+<button class="nav-icon" id="btnHistory" title="История"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>
+</div>
+</div>
+</div>
+
+<!-- ИИ-ЧАТ -->
+<div class="ai-screen" id="aiScreen">
+<div class="ai-header">
+<button class="icon-btn" id="closeAiBtn">×</button>
+<div class="ai-title">
+<h3>ƙőra ai</h3>
+<p>Умный помощник</p>
+</div>
+<div style="width: 42px;"></div>
+</div>
+
+<div class="ai-messages" id="aiMessages" style="flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f9f9fb;">
+<div class="ai-msg bot" style="align-self: flex-start; background: #e9ecef; color: #2c3e50; padding: 10px 14px; border-radius: 16px 16px 16px 4px; max-width: 80%; font-size: 14px; line-height: 1.4;">
+Привет! Я ƙőra ai. Чем могу помочь?
+</div>
+</div>
+
+<div class="ai-input-area" style="padding: 12px 16px; display: flex; gap: 8px; border-top: 1px solid #eee; background: #fff;">
+<input type="text" id="aiInput" placeholder="Спроси что-нибудь..." style="flex: 1; border: 1px solid #ddd; border-radius: 20px; padding: 10px 16px; outline: none; font-size: 14px;">
+<button id="aiSendBtn" style="background: var(--accent-pink); color: white; border: none; padding: 0 16px; border-radius: 20px; font-weight: 600; cursor: pointer;">Отправить</button>
+</div>
+</div>
+
+<!-- НАСТРОЙКИ -->
+<div class="settings-screen" id="settingsScreen">
+<div class="settings-card">
+<div class="settings-header">
+<button class="icon-btn" id="closeSettings">×</button>
+<h3 style="font-size: 17px;">Стартовая страница</h3>
+<div style="width: 42px;"></div>
+</div>
+<div class="settings-body">
+
+<div class="settings-section-title">Обои</div>
+<div class="settings-group" style="padding: 10px 16px;">
+<div class="settings-row" style="padding: 4px 0 10px 0;">
+<span>Показывать обои</span>
+<div class="toggle-switch active" id="toggleWallpaper"><div class="toggle-handle"></div></div>
+</div>
+<div class="themes-scroll" id="themesList"></div>
+</div>
+
+<div class="settings-section-title">Поисковая система</div>
+<div class="settings-group">
+<div class="settings-row">
+<span>Движок</span>
+<select class="settings-select" id="searchEngineSelect">
+<option value="google">Google</option>
+<option value="bing">Bing</option>
+<option value="yahoo">Yahoo!</option>
+</select>
+</div>
+</div>
+
+<div class="settings-section-title">Расположение поиска</div>
+<div class="position-selector">
+<div class="pos-option" id="optPosBottom">
+<div class="phone-preview selected" id="prevBottom"><div class="preview-bar bottom"></div></div>
+<span style="font-size:11px;">Внизу</span>
+</div>
+<div class="pos-option" id="optPosCenter">
+<div class="phone-preview" id="prevCenter"><div class="preview-bar center"></div></div>
+<span style="font-size:11px;">Посередине</span>
+</div>
+<div class="pos-option" id="optPosTop">
+<div class="phone-preview" id="prevTop"><div class="preview-bar top"></div></div>
+<span style="font-size:11px;">Вверху</span>
+</div>
+</div>
+
+<div class="settings-section-title">Расположение новостей</div>
+<div class="position-selector">
+<div class="pos-option" id="optNewsTop">
+<div class="phone-preview" id="prevNewsTop"><div class="preview-bar top"></div></div>
+<span style="font-size:11px;">Вверху</span>
+</div>
+<div class="pos-option" id="optNewsCenter">
+<div class="phone-preview selected" id="prevNewsCenter"><div class="preview-bar center"></div></div>
+<span style="font-size:11px;">Посередине</span>
+</div>
+<div class="pos-option" id="optNewsBottom">
+<div class="phone-preview" id="prevNewsBottom"><div class="preview-bar bottom"></div></div>
+<span style="font-size:11px;">Внизу</span>
+</div>
+</div>
+
+<div class="settings-section-title">Элементы</div>
+<div class="settings-group">
+<div class="settings-row">
+<span>Показывать закладки</span>
+<div class="toggle-switch active" id="toggleBookmarks"><div class="toggle-handle"></div></div>
+</div>
+</div>
+
+<div class="settings-section-title">Другое</div>
+<div class="settings-group">
+<div class="settings-row" id="clearHistoryBtn" style="cursor:pointer; color:#d32f2f;">
+<span>Очистить историю</span>
+<span>›</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ОКНО ИСТОРИИ -->
+<div class="history-screen" id="historyScreen">
+<div class="history-card">
+<div class="history-header">
+<button class="icon-btn" id="closeHistory">×</button>
+<h3 style="font-size: 17px;">История посещений</h3>
+<div style="width: 42px;"></div>
+</div>
+<div class="history-body" id="historyContainer"></div>
+</div>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО ДОБАВЛЕНИЯ ЗАКЛАДКИ -->
+<div class="modal-overlay" id="bookmarkModal">
+<div class="modal-card">
+<h3>Новая закладка</h3>
+<input type="text" id="bmTitleInput" placeholder="Название (например, Google)">
+<input type="text" id="bmUrlInput" placeholder="URL (например, google.com)">
+<div class="modal-actions">
+<button class="modal-btn" id="cancelBmModal">Отмена</button>
+<button class="modal-btn primary" id="saveBmModal">Добавить</button>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+/* ТЕМЫ ОФОРМЛЕНИЯ */
+const themes = [
+{ id: 'theme1', bg: 'linear-gradient(180deg, #e1bee7 0%, #f3e5f5 50%, #ffffff 100%)' },
+{ id: 'theme2', bg: 'linear-gradient(180deg, #81d4fa 0%, #e0f7fa 40%, #ffffff 100%)' },
+{ id: 'theme3', bg: 'linear-gradient(180deg, #b2ebf2 0%, #e0f2f1 50%, #ffffff 100%)' },
+{ id: 'theme4', bg: 'linear-gradient(180deg, #f8bbd0 0%, #fce4ec 50%, #ffffff 100%)' },
+{ id: 'theme5', bg: 'linear-gradient(180deg, #ffe0b2 0%, #fff3e0 50%, #ffffff 100%)' },
+{ id: 'theme6', bg: '#ffffff' }
+];
+
+const engineIcons = {
+google: `<svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>`,
+bing: `<svg width="16" height="16" viewBox="0 0 24 24" fill="#00838f"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg>`,
+yahoo: `<svg width="16" height="16" viewBox="0 0 24 24" fill="#6001d2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 10.9 12 11.5 12 13h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>`
+};
+
+const defaultBookmarks = [
+{ title: 'Google', url: 'https://www.google.com' },
+{ title: 'Википедия', url: 'https://ru.wikipedia.org' },
+{ title: 'YouTube', url: 'https://www.youtube.com' }
+];
+
+const defaultSettings = {
+barPosition: 'bottom',
+newsPosition: 'center',
+searchEngine: 'google',
+showWallpaper: true,
+selectedTheme: 0,
+showBookmarks: true
+};
+
+let settings = JSON.parse(localStorage.getItem('kora_settings')) || defaultSettings;
+let bookmarks = JSON.parse(localStorage.getItem('kora_bookmarks')) || defaultBookmarks;
+let historyData = JSON.parse(localStorage.getItem('kora_history')) || [];
+
+window.addEventListener('DOMContentLoaded', () => {
+setTimeout(() => {
+document.getElementById('splash').classList.add('hidden');
+document.getElementById('mainScreen').classList.add('visible');
+}, 1500);
+
+renderThemes();
+applySettings();
+renderBookmarks();
+loadNews();
+});
+
+/* ЗАГРУЗКА СВЕЖИХ НОВОСТЕЙ */
+async function loadNews() {
+const container = document.getElementById('newsContainer');
+try {
+const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://lenta.ru/rss/news');
+const data = await res.json();
+if (data.status === 'ok') {
+container.innerHTML = '';
+data.items.slice(0, 5).forEach(item => {
+const a = document.createElement('a');
+a.className = 'news-item';
+a.href = item.link;
+a.target = '_blank';
+a.innerText = item.title;
+container.appendChild(a);
+});
+} else { container.innerText = 'Не удалось загрузить новости.'; }
+} catch (e) { container.innerText = 'Ошибка загрузки новостей.'; }
+}
+
+/* ЭЛЕМЕНТЫ UI */
+const addPopup = document.getElementById('addPopup');
+const bookmarkModal = document.getElementById('bookmarkModal');
+const searchInput = document.getElementById('searchInput');
+const suggestionsBox = document.getElementById('suggestionsBox');
+const bottomContainer = document.getElementById('bottomContainer');
+const newsSection = document.getElementById('newsSection');
+const appContainer = document.getElementById('appContainer');
+
+document.addEventListener('click', (e) => {
+if (!addPopup.contains(e.target)) addPopup.style.display = 'none';
+if (!suggestionsBox.contains(e.target) && e.target !== searchInput) suggestionsBox.style.display = 'none';
+});
+
+document.getElementById('popAddBookmark').onclick = () => {
+addPopup.style.display = 'none';
+bookmarkModal.style.display = 'flex';
+};
+
+document.getElementById('cancelBmModal').onclick = () => bookmarkModal.style.display = 'none';
+
+document.getElementById('saveBmModal').onclick = () => {
+const title = document.getElementById('bmTitleInput').value.trim();
+let url = document.getElementById('bmUrlInput').value.trim();
+
+if (title && url) {
+if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+bookmarks.push({ title, url });
+localStorage.setItem('kora_bookmarks', JSON.stringify(bookmarks));
+renderBookmarks();
+bookmarkModal.style.display = 'none';
+document.getElementById('bmTitleInput').value = '';
+document.getElementById('bmUrlInput').value = '';
+}
+};
+
+/* ОТРЕСОВКА ЗАКЛАДОК И ИКОНОК */
+function renderBookmarks() {
+const grid = document.getElementById('bookmarksGrid');
+grid.innerHTML = '';
+if (!settings.showBookmarks) return;
+
+bookmarks.forEach((bm, index) => {
+const item = document.createElement('div');
+item.className = 'bookmark-item';
+
+const icon = document.createElement('div');
+icon.className = 'bookmark-icon';
+
+let domain = '';
+try { domain = new URL(bm.url).hostname; } catch(e) { domain = bm.url; }
+
+const img = document.createElement('img');
+img.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+img.onerror = () => {
+icon.innerHTML = '';
+icon.innerText = bm.title.charAt(0).toUpperCase();
+};
+
+icon.appendChild(img);
+icon.onclick = () => {
+saveHistory(bm.title, bm.url);
+window.open(bm.url, '_blank');
+};
+
+const title = document.createElement('div');
+title.className = 'bookmark-title';
+title.innerText = bm.title;
+
+const del = document.createElement('div');
+del.className = 'delete-bm';
+del.innerText = '×';
+del.onclick = (e) => {
+e.stopPropagation();
+bookmarks.splice(index, 1);
+localStorage.setItem('kora_bookmarks', JSON.stringify(bookmarks));
+renderBookmarks();
+};
+
+item.appendChild(icon);
+item.appendChild(title);
+item.appendChild(del);
+grid.appendChild(item);
+});
+
+const plusBtn = document.createElement('button');
+plusBtn.className = 'add-btn-card';
+plusBtn.innerText = '+';
+plusBtn.onclick = (e) => {
+e.stopPropagation();
+addPopup.style.display = addPopup.style.display === 'block' ? 'none' : 'block';
+};
+grid.appendChild(plusBtn);
+}
+
+/* АВТОДОПОЛНЕНИЕ / ПОДСКАЗКИ В ПОИСКЕ */
+searchInput.addEventListener('input', () => {
+const val = searchInput.value.trim();
+if (val.length < 2) {
+suggestionsBox.style.display = 'none';
+return;
+}
+
+const script = document.createElement('script');
+window.handleGoogleSuggest = function(data) {
+const suggestions = data[1];
+if (suggestions && suggestions.length > 0) {
+suggestionsBox.innerHTML = '';
+suggestions.slice(0, 5).forEach(item => {
+const div = document.createElement('div');
+div.className = 'suggestion-item';
+div.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> ${item[0]}`;
+div.onclick = () => {
+searchInput.value = item[0];
+suggestionsBox.style.display = 'none';
+executeSearch(item[0]);
+};
+suggestionsBox.appendChild(div);
+});
+suggestionsBox.style.display = 'flex';
+} else {
+suggestionsBox.style.display = 'none';
+}
+document.body.removeChild(script);
+};
+
+script.src = `https://suggestqueries.google.com/complete/search?client=chrome&q=${encodeURIComponent(val)}&jsonp=handleGoogleSuggest`;
+document.body.appendChild(script);
+});
+
+searchInput.addEventListener('keypress', (e) => {
+if (e.key === 'Enter') {
+suggestionsBox.style.display = 'none';
+executeSearch(searchInput.value.trim());
+}
+});
+
+function executeSearch(query) {
+if (!query) return;
+let targetUrl = '';
+const isUrl = /^(https?:\/\/)?([\w\d\-_]+\.)+[\w\d\-_]+(\/.*)?$/i.test(query);
+
+if (isUrl) {
+targetUrl = /^https?:\/\//i.test(query) ? query : 'https://' + query;
+} else {
+if (settings.searchEngine === 'bing') targetUrl = `https://www.bing.com/search?q=${encodeURIComponent(query)}`;
+else if (settings.searchEngine === 'yahoo') targetUrl = `https://search.yahoo.com/search?p=${encodeURIComponent(query)}`;
+else targetUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+}
+
+saveHistory(query, targetUrl);
+window.open(targetUrl, '_blank');
+searchInput.value = '';
+}
+
+function saveHistory(title, url) {
+historyData.unshift({ title, url, date: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+localStorage.setItem('kora_history', JSON.stringify(historyData));
+}
+
+/* НАСТРОЙКИ И ТЕМЫ */
+const settingsScreen = document.getElementById('settingsScreen');
+document.getElementById('openSettings').onclick = () => settingsScreen.classList.add('active');
+document.getElementById('openThemesMenu').onclick = () => settingsScreen.classList.add('active');
+document.getElementById('closeSettings').onclick = () => settingsScreen.classList.remove('active');
+
+function renderThemes() {
+const list = document.getElementById('themesList');
+list.innerHTML = '';
+themes.forEach((t, idx) => {
+const card = document.createElement('div');
+card.className = `theme-card ${settings.selectedTheme === idx ? 'selected' : ''}`;
+card.style.background = t.bg;
+card.onclick = () => {
+settings.selectedTheme = idx;
+saveSettings();
+};
+list.appendChild(card);
+});
+}
+
+function applySettings() {
+bottomContainer.classList.remove('top-position', 'center-position', 'bottom-position');
+document.getElementById('prevBottom').classList.remove('selected');
+document.getElementById('prevCenter').classList.remove('selected');
+document.getElementById('prevTop').classList.remove('selected');
+
+if (settings.barPosition === 'top') {
+bottomContainer.classList.add('top-position');
+document.getElementById('prevTop').classList.add('selected');
+} else if (settings.barPosition === 'center') {
+bottomContainer.classList.add('center-position');
+document.getElementById('prevCenter').classList.add('selected');
+} else {
+bottomContainer.classList.add('bottom-position');
+document.getElementById('prevBottom').classList.add('selected');
+}
+
+newsSection.classList.remove('top-pos', 'center-pos', 'bottom-pos');
+document.getElementById('prevNewsTop').classList.remove('selected');
+document.getElementById('prevNewsCenter').classList.remove('selected');
+document.getElementById('prevNewsBottom').classList.remove('selected');
+
+if (settings.newsPosition === 'top') {
+newsSection.classList.add('top-pos');
+document.getElementById('prevNewsTop').classList.add('selected');
+} else if (settings.newsPosition === 'bottom') {
+newsSection.classList.add('bottom-pos');
+document.getElementById('prevNewsBottom').classList.add('selected');
+} else {
+newsSection.classList.add('center-pos');
+document.getElementById('prevNewsCenter').classList.add('selected');
+}
+
+document.getElementById('searchEngineSelect').value = settings.searchEngine;
+document.getElementById('engineIcon').innerHTML = engineIcons[settings.searchEngine] || engineIcons.google;
+
+const engineName = settings.searchEngine.charAt(0).toUpperCase() + settings.searchEngine.slice(1);
+searchInput.placeholder = `Искать в ${settings.searchEngine === 'yahoo' ? 'Yahoo!' : engineName}`;
+
+if (settings.showWallpaper) {
+appContainer.style.background = themes[settings.selectedTheme].bg;
+} else {
+appContainer.style.background = '#ffffff';
+}
+
+updateToggle('toggleWallpaper', settings.showWallpaper);
+updateToggle('toggleBookmarks', settings.showBookmarks);
+
+renderThemes();
+renderBookmarks();
+}
+
+function updateToggle(id, val) {
+const el = document.getElementById(id);
+if (val) el.classList.add('active'); else el.classList.remove('active');
+}
+
+document.getElementById('optPosBottom').onclick = () => { settings.barPosition = 'bottom'; saveSettings(); };
+document.getElementById('optPosCenter').onclick = () => { settings.barPosition = 'center'; saveSettings(); };
+document.getElementById('optPosTop').onclick = () => { settings.barPosition = 'top'; saveSettings(); };
+
+document.getElementById('optNewsTop').onclick = () => { settings.newsPosition = 'top'; saveSettings(); };
+document.getElementById('optNewsCenter').onclick = () => { settings.newsPosition = 'center'; saveSettings(); };
+document.getElementById('optNewsBottom').onclick = () => { settings.newsPosition = 'bottom'; saveSettings(); };
+
+document.getElementById('searchEngineSelect').onchange = (e) => {
+settings.searchEngine = e.target.value;
+saveSettings();
+};
+
+document.getElementById('toggleWallpaper').onclick = () => { settings.showWallpaper = !settings.showWallpaper; saveSettings(); };
+document.getElementById('toggleBookmarks').onclick = () => { settings.showBookmarks = !settings.showBookmarks; saveSettings(); };
+
+function saveSettings() {
+localStorage.setItem('kora_settings', JSON.stringify(settings));
+applySettings();
+}
+
+document.getElementById('clearHistoryBtn').onclick = () => {
+historyData = [];
+localStorage.removeItem('kora_history');
+alert('История очищена');
+renderHistory();
+};
+
+/* ОКНО ИСТОРИИ */
+const historyScreen = document.getElementById('historyScreen');
+document.getElementById('btnHistory').onclick = () => {
+renderHistory();
+historyScreen.classList.add('active');
+};
+document.getElementById('closeHistory').onclick = () => historyScreen.classList.remove('active');
+
+function renderHistory() {
+const container = document.getElementById('historyContainer');
+container.innerHTML = '';
+if (historyData.length === 0) {
+container.innerHTML = '<div style="text-align:center; color:#888; padding:20px;">История пуста</div>';
+return;
+}
+historyData.forEach(item => {
+const div = document.createElement('div');
+div.className = 'history-item';
+div.innerHTML = `<div class="history-item-title">${item.title} <span style="font-weight:normal; font-size:11px; color:#aaa; float:right;">${item.date}</span></div><div class="history-item-url">${item.url}</div>`;
+div.onclick = () => window.open(item.url, '_blank');
+container.appendChild(div);
+});
+}
+
+/* ИИ-ЧАТ (Исправленная работа с Pollinations AI) */
+const aiScreen = document.getElementById('aiScreen');
+const aiMessages = document.getElementById('aiMessages');
+const aiInput = document.getElementById('aiInput');
+const aiSendBtn = document.getElementById('aiSendBtn');
+
+document.getElementById('openAiBtn').onclick = () => aiScreen.classList.add('active');
+document.getElementById('closeAiBtn').onclick = () => aiScreen.classList.remove('active');
+
+async function sendAiMessage() {
+const text = aiInput.value.trim();
+if (!text) return;
+
+appendMsg(text, 'user');
+aiInput.value = '';
+
+const loadingDiv = appendMsg('Думаю...', 'bot');
+
+try {
+// Актуальная модель mistral-large
+const promptText = encodeURIComponent(`Ты — ƙőra ai, умный и вежливый помощник. Отвечай кратко и понятно на русском языке. Вопрос: ${text}`);
+const res = await fetch(`https://text.pollinations.ai/${promptText}?model=mistral-large`);
+
+if (!res.ok) throw new Error('Ошибка сети');
+
+const responseText = await res.text();
+loadingDiv.innerText = responseText || 'Пустой ответ.';
+} catch (err) {
+// Резервная модель openai
+try {
+const fallbackPrompt = encodeURIComponent(text);
+const res2 = await fetch(`https://text.pollinations.ai/${fallbackPrompt}?model=openai`);
+const responseText2 = await res2.text();
+loadingDiv.innerText = responseText2;
+} catch (e) {
+loadingDiv.innerText = 'Не удалось получить ответ. Попробуйте отправить сообщение ещё раз!';
+}
+}
+}
+
+function appendMsg(text, type) {
+const msg = document.createElement('div');
+msg.className = `ai-msg ${type}`;
+msg.innerText = text;
+
+if (type === 'user') {
+msg.style.cssText = 'align-self: flex-end; background: var(--accent-pink); color: white; padding: 10px 14px; border-radius: 16px 16px 4px 16px; max-width: 80%; font-size: 14px; line-height: 1.4;';
+} else {
+msg.style.cssText = 'align-self: flex-start; background: #e9ecef; color: #2c3e50; padding: 10px 14px; border-radius: 16px 16px 16px 4px; max-width: 80%; font-size: 14px; line-height: 1.4;';
+}
+
+aiMessages.appendChild(msg);
+aiMessages.scrollTop = aiMessages.scrollHeight;
+return msg;
+}
+
+aiSendBtn.onclick = sendAiMessage;
+aiInput.addEventListener('keypress', (e) => {
+if (e.key === 'Enter') sendAiMessage();
+});
+</script>
+</body>
+</html>
+
